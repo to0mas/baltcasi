@@ -1,69 +1,96 @@
-import React, { useEffect } from 'react'
-import './Weather.css'
-import search_icon from '../assets/search.png'
-import slunicko_icon from '../assets/clear.png'
-import humidity from '../assets/humidity.png'
-import vitr from '../assets/vitr.png'
+import React, { useEffect, useState } from 'react';
+import './Weather.css';
+import search_icon from '../assets/search.png';
+import slunicko_icon from '../assets/clear.png';
+import humidity from '../assets/humidity.png';
+import vitr from '../assets/vitr.png';
+import adam from '../assets/adam.png';
+import mara from '../assets/mara.png';
+import snow_icon from '../assets/snow.png';
 
 const Weather = () => {
+  const [weatherData, setWeatherData] = useState(null);
 
+  const allIcons = {
+    "01d": slunicko_icon,
+    "01n": slunicko_icon,
+    "02d": adam,
+    "02n": adam,
+    "03d": adam,
+    "03n": adam,
+    "04d": mara,
+    "04n": mara,
+    "09d": mara,
+    "09n": mara,
+    "10d": mara,
+    "10n": mara,
+    "13d": snow_icon,
+    "13n": snow_icon,
+  };
 
-const search = async (city)=>{
+  const search = async (city) => {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${import.meta.env.VITE_APP_ID}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log(data);
 
-    try{
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${import.meta.env.VITE_APP_ID}`;
+      const icon = allIcons[data.weather[0].icon] || slunicko_icon;
 
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log(data);
+      setWeatherData({
+        humidity: data.main.humidity,
+        windSpeed: data.wind.speed,
+        temperature: Math.floor(data.main.temp),
+        location: data.name,
+        icon: icon,
+      });
+    } catch (error) {
+      console.error("Chyba při načítání dat o počasí:", error);
     }
-    catch(error){
-        
-    }
-    
-}
+  };
 
-    useEffect(()=>{
-        search("London");
-    },[])
-
+  useEffect(() => {
+    search("Zlín");
+  }, []);
 
   return (
     <div className='weather'>
-        <div className="nadpis">
-            <h1>Baltčasí Počasí</h1>
-        </div>
-       <div className="search-bar">
-        <input type="text"  placeholder='Město/Stát'/>
-        <img src={search_icon} alt="" />
-       </div>
+      <div className="nadpis">
+        <h1>Baltčasí Počasí</h1>
+      </div>
 
-       <img src={slunicko_icon} alt="" className='weather-icon' />
-       <p className='temperature'>16 STUPNU</p>
-       <p className='location'> Jížní Svahy</p>
+      <div className="search-bar">
+        <input type="text" placeholder='Město/Stát' />
+        <img src={search_icon} alt="search" />
+      </div>
 
-       <div className="weather-data">
+      {weatherData && (
+        <>
+          <img src={weatherData.icon} alt="weather icon" className='weather-icon' />
+          <p className='temperature'>{weatherData.temperature} °C</p>
+          <p className='location'>{weatherData.location}</p>
+
+          <div className="weather-data">
             <div className="col">
-                <img src={humidity} alt="" />
-                <div>
-                    <p>91 %</p>
-                    <span>Vlhkost</span>
-                </div>
+              <img src={humidity} alt="humidity" />
+              <div>
+                <p>{weatherData.humidity} %</p>
+                <span>Vlhkost</span>
+              </div>
             </div>
 
             <div className="col">
-                <img src={vitr} alt="" />
-                <div>
-                    <p>3.6 Km/h</p>
-                    <span>Rychlost Adriana</span>
-                </div>
+              <img src={vitr} alt="wind" />
+              <div>
+                <p>{weatherData.windSpeed} Km/h</p>
+                <span>Rychlost Adriana</span>
+              </div>
             </div>
-
-          
-
-       </div>
+          </div>
+        </>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Weather
+export default Weather;
