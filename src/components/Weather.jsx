@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Weather.css';
 import search_icon from '../assets/search.png';
 import slunicko_icon from '../assets/clear.png';
@@ -9,6 +9,11 @@ import mara from '../assets/mara.png';
 import snow_icon from '../assets/snow.png';
 
 const Weather = () => {
+
+
+    const inputRef = useRef()
+
+
   const [weatherData, setWeatherData] = useState(null);
 
   const allIcons = {
@@ -60,8 +65,8 @@ const Weather = () => {
       </div>
 
       <div className="search-bar">
-        <input type="text" placeholder='Město/Stát' />
-        <img src={search_icon} alt="search" />
+        <input ref={inputRef} type="text" placeholder='Město/Stát' />
+        <img src={search_icon} alt="search"  onClick={()=>search(inputRef.current.value)}/>
       </div>
 
       {weatherData && (
